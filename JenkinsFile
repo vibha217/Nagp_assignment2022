@@ -6,23 +6,23 @@ pipeline{
     stages{
     stage("code checkout"){
       steps{
-      sh "echo hello"
+      bat "echo hello"
       }
     }
     stage("code build"){
     steps{
-    sh "mvn clean"
+    bat "mvn clean"
     }
     }
     stage("unit test"){
     steps{
-    sh "mvn test"
+    bat "mvn test"
     }
     }
     }
     post{
       success{
-      sh "echo success"
+      bat "echo success"
     }
     }
     }
