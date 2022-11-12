@@ -1,31 +1,63 @@
 pipeline{
     agent any
+    	environment {
+		notifyEmail ="Vibha.kumari@nagarro.com"
+	}
     tools{
-    maven 'Maven'
+        maven 'Maven'
     }
     stages{
-    stage("code checkout"){
-      steps{
-      bat "echo hello"
-      }
-    }
-    stage("code build"){
-    steps{
-    bat "mvn clean"
-    }
-    }
-    stage("unit test"){
-    steps{
-    bat "mvn test"
-    }
-    }
+        stage("code checkout"){
+            steps{
+            bat "echo hello"
+            }
+        }   
+        stage("code build"){
+            steps{
+            bat "mvn clean"
+            }
+        }
+        stage("unit test"){
+            steps{
+            bat "mvn test"
+            }
+        }
+        stage("Sonar Analysis"){
+            steps{
+            withSonarQubeEnv("Test_SonarQube")
+                {
+		    bat "echo Sonar Run half"
+                        bat "mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.8.0.2131:sonar"        
+                }
+            }
+        }
+        stage("Publish to Artifactory"){
+            steps{
+                rtMavenDeployer(
+                    id: 'deployer',
+                    serverId: 'Jfrog123',
+                    releaseRepo: 'vibha.nagp',
+                    snapshotRepo: 'vibha.nagp'
+                )
+                rtMavenRun(
+                    pom: 'pom.xml',
+                    goals: 'clean install',
+                    deployerId: 'deployer'
+                    )
+                rtPublishBuildInfo(
+                    serverId:'Jfrog123',
+                )
+            }        
+        }
+        stage("Invoke UI Test Pipeline"){
+			steps{
+				build job: 'Dev-Ops-Freestyle-Practice'
+			}
+		}
     }
     post{
-      success{
-      bat "echo success"
-    }
-    }
-    }
-   
-   
-      
+        success{
+            bat "echo success"
+            }
+        }
+}
