@@ -49,11 +49,7 @@ pipeline{
                 )
             }        
         }
-        stage("Invoke UI Test Pipeline"){
-			steps{
-				build job: 'PipleLineDemo'
-			}
-		}
+      
     }
     post{
         success{
